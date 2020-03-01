@@ -1,5 +1,5 @@
 const gameContent =document.getElementById('gameContent');
-gameContent.textContent='';
+// gameContent.textContent='';
 
 const alphabet=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','r','s','t','u', 'v', 'w', 'x', 'y', 'z'];
 const base = ["roza",'gwiezdne wojny','jurrasic park'];
@@ -20,8 +20,6 @@ gameState={
 
 const header =document.createElement('h1');
 
-function createAlphabet(){};
-
 function stateUpdate(newGameState){
     Object.assign(gameState,newGameState);
     render();
@@ -38,11 +36,16 @@ function welcomeView(){
     
     const nameInput= document.createElement('input');
     
+    gameContent.appendChild(header);
+    gameContent.appendChild(nameInputLabel);
+    nameInputLabel.appendChild(nameInput);
+    gameContent.appendChild(btn);
     nameInput.addEventListener('input',event=>{
         stateUpdate({name:event.target.value})
     })
     btn.addEventListener('click',()=>{
-        stateUpdate({activeView:'play',
+        stateUpdate({
+        activeView:'play',
         selectedLetters:[],
         secretPhrase:randomPhrase()});
     });
@@ -51,11 +54,6 @@ function welcomeView(){
         nameInput.value=gameState.name;
         nameInput.focus();
     },0)
-    
-    gameContent.appendChild(header);
-    gameContent.appendChild(nameInputLabel);
-    nameInputLabel.appendChild(nameInput);
-    gameContent.appendChild(btn);
 }
 
 function playView(){
@@ -63,7 +61,7 @@ function playView(){
     
     const againBtn =document.createElement('button');
     const alpDiv =document.createElement('div');
-
+    
     const phraseLettersContainer = document.createElement('div');
     phraseLettersContainer.setAttribute('id','phraseContainer');
     
@@ -74,7 +72,7 @@ function playView(){
         const phraseLetterSpan = document.createElement('span');
         phraseLetterSpan.textContent=phraseLetter;
         const phraseLetterVisible = phraseLetter === ' ' || gameState.selectedLetters.includes(phraseLetter);
-
+        
         if(phraseLetterVisible) {visibleLetters++};
         
         phraseLetterSpan.textContent = phraseLetterVisible ? phraseLetter : '*';
@@ -90,12 +88,12 @@ function playView(){
         letterButton.disabled=gameState.selectedLetters.includes(letter);
 
         letterButton.addEventListener('click',()=>{
-            stateUpdate({ selectedLetters:gameState.selectedLetters.concat(letter)});
-            const mistakes =gameState.secretPhrase.includes(letter);
-            console.log(mistakes);
-            
+            const mistakes =!gameState.secretPhrase.includes(letter);
+            stateUpdate({ 
+                selectedLetters:gameState.selectedLetters.concat(letter),
+                mistake:mistakes?gameState.mistake+1:gameState.mistake
+            });
         })
-
         alpDiv.appendChild(letterButton);
     }
     
@@ -104,15 +102,15 @@ function playView(){
         stateUpdate({activeView:'endGame'});
     })
     
-    if(visibleLetters===gameState.secretPhrase.length){
-        stateUpdate({
-            activeView:'endGame',
-            selectedLetters:[]})
-    }
     gameContent.appendChild(header);
     gameContent.appendChild(againBtn);
     gameContent.appendChild(alpDiv);
     gameContent.appendChild(phraseLettersContainer);
+        if(visibleLetters===gameState.secretPhrase.length){
+            stateUpdate({
+                activeView:'endGame',
+                selectedLetters:[]})
+        }
 }
 
 function endGameView(){
