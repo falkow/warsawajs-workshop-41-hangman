@@ -1,139 +1,152 @@
-const gameContent =document.getElementById('gameContent');
+const gameContent = document.getElementById('gameContent');
 // gameContent.textContent='';
 
-const alphabet=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','r','s','t','u', 'v', 'w', 'x', 'y', 'z'];
-const base = ["roza",'gwiezdne wojny','jurrasic park'];
+const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+const base = ["roza", 'gwiezdne wojny', 'jurrasic park'];
 
-function randomPhrase(){
-    const phraseIndex=Math.floor(Math.random()*base.length);
-    return base[phraseIndex];
+function randomPhrase() {
+  const phraseIndex = Math.floor(Math.random() * base.length);
+  return base[phraseIndex];
 };
 
 
-gameState={
-    name:'',
-    activeView:'welcome',
-    selectedLetters:[],
-    secretPhrase:'',
-    mistake:0
+gameState = {
+  name: '',
+  activeView: 'welcome',
+  selectedLetters: [],
+  secretPhrase: '',
+  mistake: 0
 };
 
-const header =document.createElement('h1');
+const header = document.createElement('h1');
 
-function stateUpdate(newGameState){
-    Object.assign(gameState,newGameState);
-    render();
+function stateUpdate(newGameState) {
+  Object.assign(gameState, newGameState);
+  render();
 }
 
-function welcomeView(){
-    header.textContent="Welcome to Hangman!";
-    const btn =document.createElement('button');
-    btn.classList.add('btn');
-    btn.textContent="Play game!";
-    
-    const nameInputLabel= document.createElement('div');
-    nameInputLabel.textContent='Enter your name: ';
-    
-    const nameInput= document.createElement('input');
-    
-    gameContent.appendChild(header);
-    gameContent.appendChild(nameInputLabel);
-    nameInputLabel.appendChild(nameInput);
-    gameContent.appendChild(btn);
-    nameInput.addEventListener('input',event=>{
-        stateUpdate({name:event.target.value})
+function welcomeView() {
+  header.textContent = "Welcome to Hangman!";
+  const btn = document.createElement('button');
+  btn.classList.add('btn');
+  btn.textContent = "Play game!";
+
+  const nameInputLabel = document.createElement('div');
+  nameInputLabel.textContent = 'Enter your name: ';
+
+  const nameInput = document.createElement('input');
+
+  gameContent.appendChild(header);
+  gameContent.appendChild(nameInputLabel);
+  nameInputLabel.appendChild(nameInput);
+  gameContent.appendChild(btn);
+  nameInput.addEventListener('input', event => {
+    stateUpdate({
+      name: event.target.value
     })
-    btn.addEventListener('click',()=>{
-        stateUpdate({
-        activeView:'play',
-        selectedLetters:[],
-        secretPhrase:randomPhrase()});
+  })
+  btn.addEventListener('click', () => {
+    stateUpdate({
+      activeView: 'play',
+      selectedLetters: [],
+      secretPhrase: randomPhrase()
     });
-    
-    setTimeout(()=>{
-        nameInput.value=gameState.name;
-        nameInput.focus();
-    },0)
+  });
+
+  setTimeout(() => {
+    nameInput.value = gameState.name;
+    nameInput.focus();
+  }, 0)
 }
 
-function playView(){
-    header.textContent=`Hi, ` + gameState.name;
-    
-    const againBtn =document.createElement('button');
-    const alpDiv =document.createElement('div');
-    
-    const phraseLettersContainer = document.createElement('div');
-    phraseLettersContainer.setAttribute('id','phraseContainer');
-    
-    let visibleLetters=0;
-    const phraseLetters =gameState.secretPhrase.split("");
+function playView() {
+  header.textContent = `Hi, ${gameState.name}`;
 
-    phraseLetters.forEach((phraseLetter)=>{
-        const phraseLetterSpan = document.createElement('span');
-        phraseLetterSpan.textContent=phraseLetter;
-        const phraseLetterVisible = phraseLetter === ' ' || gameState.selectedLetters.includes(phraseLetter);
-        
-        if(phraseLetterVisible) {visibleLetters++};
-        
-        phraseLetterSpan.textContent = phraseLetterVisible ? phraseLetter : '*';
-        phraseLettersContainer.appendChild(phraseLetterSpan);
+  const againBtn = document.createElement('button');
+  const alpDiv = document.createElement('div');
+
+  const phraseLettersContainer = document.createElement('div');
+  phraseLettersContainer.setAttribute('id', 'phraseContainer');
+  const mistakeContainer = document.createElement('div');
+  mistakeContainer.setAttribute('id', 'mistakeContainer');
+
+  let visibleLetters = 0;
+  const phraseLetters = gameState.secretPhrase.split("");
+
+  phraseLetters.forEach((phraseLetter) => {
+    const phraseLetterSpan = document.createElement('span');
+    phraseLetterSpan.textContent = phraseLetter;
+    const phraseLetterVisible = phraseLetter === ' ' || gameState.selectedLetters.includes(phraseLetter);
+
+    if (phraseLetterVisible) {
+      visibleLetters++
+    };
+
+    phraseLetterSpan.textContent = phraseLetterVisible ? phraseLetter : '*';
+    phraseLettersContainer.appendChild(phraseLetterSpan);
+  })
+
+
+  for (let i = 0; i < alphabet.length; i++) {
+    const letterButton = document.createElement('button');
+    const letter = alphabet[i];
+    letterButton.classList.add('letters')
+    letterButton.textContent = letter;
+    letterButton.disabled = gameState.selectedLetters.includes(letter);
+
+    letterButton.addEventListener('click', () => {
+      const mistakes = !gameState.secretPhrase.includes(letter);
+      stateUpdate({
+        selectedLetters: gameState.selectedLetters.concat(letter),
+        mistake: mistakes ? gameState.mistake + 1 : gameState.mistake
+      });
     })
+    alpDiv.appendChild(letterButton);
+  }
+  mistakeContainer.textContent = `Ilość błędów: ${gameState.mistake}`
 
+  againBtn.textContent = 'Give up!';
+  againBtn.addEventListener('click', (event) => {
+    stateUpdate({
+      activeView: 'endGame'
+    });
+  })
 
-    for (let i=0;i<alphabet.length;i++){
-        const letterButton =document.createElement('button');
-        const letter= alphabet[i];
-        letterButton.classList.add('letters')
-        letterButton.textContent=letter;
-        letterButton.disabled=gameState.selectedLetters.includes(letter);
-
-        letterButton.addEventListener('click',()=>{
-            const mistakes =!gameState.secretPhrase.includes(letter);
-            stateUpdate({ 
-                selectedLetters:gameState.selectedLetters.concat(letter),
-                mistake:mistakes?gameState.mistake+1:gameState.mistake
-            });
-        })
-        alpDiv.appendChild(letterButton);
-    }
-    
-    againBtn.textContent='Give up!';
-    againBtn.addEventListener('click',(event)=>{
-        stateUpdate({activeView:'endGame'});
+  gameContent.appendChild(header);
+  gameContent.appendChild(againBtn);
+  gameContent.appendChild(alpDiv);
+  gameContent.appendChild(phraseLettersContainer);
+  gameContent.appendChild(mistakeContainer);
+  if (visibleLetters === gameState.secretPhrase.length) {
+    stateUpdate({
+      activeView: 'endGame',
+      selectedLetters: []
     })
-    
-    gameContent.appendChild(header);
-    gameContent.appendChild(againBtn);
-    gameContent.appendChild(alpDiv);
-    gameContent.appendChild(phraseLettersContainer);
-        if(visibleLetters===gameState.secretPhrase.length){
-            stateUpdate({
-                activeView:'endGame',
-                selectedLetters:[]})
-        }
+  }
 }
 
-function endGameView(){
-    header.textContent='Game finished!';
-    gameContent.appendChild(header);
+function endGameView() {
+  header.textContent = 'Game finished!';
+  gameContent.appendChild(header);
 
-    const againBtn =document.createElement('button');
-    againBtn.textContent='Play again';
-    gameContent.appendChild(againBtn);
-    againBtn.addEventListener('click',()=>{
-        stateUpdate({activeView:'welcome'});
-    })
+  const againBtn = document.createElement('button');
+  againBtn.textContent = 'Play again';
+  gameContent.appendChild(againBtn);
+  againBtn.addEventListener('click', () => {
+    stateUpdate({
+      activeView: 'welcome'
+    });
+  })
 }
 
-function render(){
-    gameContent.textContent='';
-    if (gameState.activeView==='welcome'){
-        welcomeView();
-    } else if (gameState.activeView==='play'){
-        playView();
-    } else {
-        endGameView();
-    }
+function render() {
+  gameContent.textContent = '';
+  if (gameState.activeView === 'welcome') {
+    welcomeView();
+  } else if (gameState.activeView === 'play') {
+    playView();
+  } else {
+    endGameView();
+  }
 };
 render();
-
