@@ -28,37 +28,28 @@ function stateUpdate(newGameState) {
 
 function welcomeView() {
   header.textContent = "Welcome to Hangman!";
+
+  const nameInput = document.createElement('input');
+  nameInput.placeholder = 'Enter your name'
+
   const btn = document.createElement('button');
   btn.classList.add('btn');
   btn.textContent = "Play game!";
 
-  const nameInputLabel = document.createElement('div');
-  nameInputLabel.textContent = 'Enter your name: ';
-
-  const nameInput = document.createElement('input');
-
   gameContent.appendChild(header);
-  gameContent.appendChild(nameInputLabel);
-  nameInputLabel.appendChild(nameInput);
+  gameContent.appendChild(nameInput);
   gameContent.appendChild(btn);
-  nameInput.addEventListener('input', event => {
-    stateUpdate({
-      name: event.target.value
-    })
-  })
+
+
   btn.addEventListener('click', () => {
     stateUpdate({
       activeView: 'play',
+      name: nameInput.value,
       selectedLetters: [],
       secretPhrase: randomPhrase(),
       mistake: 0
     });
   });
-
-  setTimeout(() => {
-    nameInput.value = gameState.name;
-    nameInput.focus();
-  }, 0)
 }
 
 function playView() {

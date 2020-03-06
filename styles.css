@@ -1,4 +1,4 @@
-body{
+body {
     font-family: sans-serif;
     display: flex;
     flex-direction: column;
@@ -6,12 +6,15 @@ body{
     align-items: center;
 }
 
-#gameContent{
+#gameContent {
     text-align: center;
     width: 60vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.letters{
+.letters {
     display: inline-block;
     text-align: center;
     text-transform: uppercase;
@@ -23,27 +26,27 @@ body{
     cursor: pointer;
 }
 
-.letters:disabled{
+.letters:disabled {
     /* background-color: green; */
     opacity: 0.3;
 }
 
-.btn{
+.btn {
     position: relative;
     height: 30px;
     width: 20vw;
     margin: 10px 0;
-    border:none;
+    border: none;
     border-radius: 5px;
     background-color: rgb(74, 153, 21);
 }
 
-#phraseContainer span{
+#phraseContainer span {
     /* display:inline-block; */
     text-align: center;
     text-transform: uppercase;
     font-size: 24px;
-    border:1px solid black;
+    border: 1px solid black;
     width: 60px;
     height: 60px;
     margin: 0 5px;
