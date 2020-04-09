@@ -47,7 +47,8 @@ function welcomeView() {
       name: nameInput.value,
       selectedLetters: [],
       secretPhrase: randomPhrase(),
-      mistake: 0
+      mistake: 0,
+      surrender: false
     });
   });
 }
@@ -56,12 +57,17 @@ function playView() {
   header.textContent = `Hi, ${gameState.name}`;
 
   const againBtn = document.createElement('button');
+  const image = document.createElement('img');
+  image.src = "img/00.png"
+  gameContent.appendChild(image);
   const alpDiv = document.createElement('div');
+  alpDiv.setAttribute('id', 'alphabhetContainer')
 
   const phraseLettersContainer = document.createElement('div');
   phraseLettersContainer.setAttribute('id', 'phraseContainer');
   const mistakeContainer = document.createElement('div');
-  mistakeContainer.setAttribute('id', 'mistakeContainer');
+  // mistakeContainer.setAttribute('id', 'mistakeContainer');
+  mistakeContainer.id = "mistakeContainer"
 
   let visibleLetters = 0;
   const phraseLetters = gameState.secretPhrase.split("");
@@ -88,11 +94,13 @@ function playView() {
 
     letterButton.addEventListener('click', () => {
       const mistakes = !gameState.secretPhrase.includes(letter);
+
       stateUpdate({
         selectedLetters: gameState.selectedLetters.concat(letter),
         mistake: mistakes ? gameState.mistake + 1 : gameState.mistake
       });
     })
+    image.src = `img/0${gameState.mistake}.png`;
     alpDiv.appendChild(letterButton);
   })
 
@@ -105,33 +113,45 @@ function playView() {
   gameContent.appendChild(alpDiv);
   gameContent.appendChild(phraseLettersContainer);
   gameContent.appendChild(mistakeContainer);
-  if (visibleLetters === gameState.secretPhrase.length || gameState.mistake === 8) {
+  if (visibleLetters === gameState.secretPhrase.length || gameState.mistake === 9) {
     stateUpdate({
       activeView: 'endGame'
     })
   }
   againBtn.addEventListener('click', () => {
     stateUpdate({
-      activeView: 'endGame'
+      activeView: 'endGame',
+      surrender: true
     });
   })
 }
 
 function endGameView() {
-  gameState.mistake === 8 ? header.textContent = 'Game finished! You looose' : header.textContent = 'Game finished! You win';
+  if (gameState.mistake === 9) {
+    header.innerHTML = `Game finished! You looose!!!`
+  } else if (gameState.surrender) {
+    header.textContent = `Did you gave up?`
+  } else {
+    header.textContent = `You win`
+  }
+  // gameState.mistake === 9 ?  : header.textContent = 'Game finished! You win';
   const countMistake = document.createElement('h3');
   const againBtn = document.createElement('button');
+  const correctAns = document.createElement('p');
 
+  correctAns.textContent = `Correct answer is: ${gameState.secretPhrase}`
   againBtn.textContent = 'Play again';
-  countMistake.textContent = `Popełniłeś ${gameState.mistake} błędów`
-
+  countMistake.textContent = `You've made ${gameState.mistake} mistakes`
+  console.log(gameState.surrender)
 
   gameContent.appendChild(header);
+  gameContent.appendChild(correctAns);
   gameContent.appendChild(countMistake);
   gameContent.appendChild(againBtn);
   againBtn.addEventListener('click', () => {
     stateUpdate({
-      activeView: 'welcome'
+      activeView: 'welcome',
+      surrender: false
     });
   })
 }
